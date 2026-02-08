@@ -31,6 +31,52 @@ Use the `ActivitySmith API` credential.
 
 Note: n8n credential testing sends one test push notification to verify your key.
 
+## Usage examples
+
+### 1. Webhook to push notification
+
+Use this when another system posts alerts into n8n.
+
+1. Add `Webhook` node.
+2. Set method to `POST` and path to `activitysmith-alert`.
+3. Add `ActivitySmith` node.
+4. Set operation to `Send Push Notification`.
+5. Map fields:
+   `Title` -> `{{$json.body.title}}`
+   `Message` -> `{{$json.body.message}}`
+6. Activate the workflow.
+
+Example request:
+
+```bash
+curl -X POST 'https://<your-n8n-host>/webhook/activitysmith-alert' \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"💸 New subscription","message":"New user subscribed to Pro: john@example.com"}'
+```
+
+### 2. GitHub CI workflow to Live Activity lifecycle
+
+Use this to mirror CI progress on iOS Live Activities.
+
+1. Add `GitHub Trigger` node for workflow run events.
+2. Add `Switch` node on workflow status (`queued`, `in_progress`, `completed`).
+3. On `queued`:
+   Add `ActivitySmith` node with `Start Live Activity`.
+   Save returned `activity_id` in `Data Store` keyed by GitHub run ID.
+4. On `in_progress`:
+   Load saved `activity_id` from `Data Store`.
+   Add `ActivitySmith` node with `Update Live Activity`.
+5. On `completed`:
+   Load saved `activity_id`.
+   Add `ActivitySmith` node with `End Live Activity`.
+   Optionally set `Auto Dismiss Minutes` to `0` for immediate dismiss.
+
+Suggested field mapping:
+`Title` -> `{{$json.repository.full_name}} CI`
+`Subtitle` -> `{{$json.workflow_run.status}}`
+`Current Step` -> map from CI phase (for example 1=start, 2=test, 3=deploy, 4=done)
+`Number of Steps` -> `4`
+
 ## Compatibility
 
 Tested with current n8n community node tooling via `@n8n/node-cli`.
@@ -49,6 +95,10 @@ npm run dev
 - ActivitySmith API docs: https://activitysmith.com/docs/api-reference/introduction
 
 ## Version history
+
+### 0.1.1
+
+Added workflow usage examples and improved push notification sample payload.
 
 ### 0.1.0
 
