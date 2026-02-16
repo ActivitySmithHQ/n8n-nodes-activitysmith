@@ -40,6 +40,29 @@ const parseOptionalInteger = (value: unknown, fieldName: string): number | undef
 	throw new ApplicationError(`${fieldName} must be a valid integer`);
 };
 
+const parseOptionalStringList = (value: unknown, fieldName: string): string[] | undefined => {
+	if (value === undefined || value === null || value === '') {
+		return undefined;
+	}
+
+	if (Array.isArray(value)) {
+		const normalized = value
+			.map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+			.filter((entry) => entry.length > 0);
+		return normalized.length > 0 ? normalized : undefined;
+	}
+
+	if (typeof value === 'string') {
+		const normalized = value
+			.split(/[\n,]/)
+			.map((entry) => entry.trim())
+			.filter((entry) => entry.length > 0);
+		return normalized.length > 0 ? normalized : undefined;
+	}
+
+	throw new ApplicationError(`${fieldName} must be a comma-separated list of channel slugs`);
+};
+
 export class ActivitySmith implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'ActivitySmith',
@@ -126,6 +149,19 @@ export class ActivitySmith implements INodeType {
 				displayOptions: {
 					show: {
 						operation: ['sendPushNotification', 'startLiveActivity', 'updateLiveActivity', 'endLiveActivity'],
+					},
+				},
+			},
+			{
+				displayName: 'Channels (Optional)',
+				name: 'channels',
+				type: 'string',
+				default: '',
+				placeholder: 'devs, ops',
+				description: 'Comma-separated channel slugs. Leave empty to use API key scope recipients.',
+				displayOptions: {
+					show: {
+						operation: ['sendPushNotification', 'startLiveActivity'],
 					},
 				},
 			},
@@ -256,6 +292,10 @@ export class ActivitySmith implements INodeType {
 
 				if (operation === 'sendPushNotification') {
 					const message = this.getNodeParameter('message', itemIndex, '') as string;
+					const channels = parseOptionalStringList(
+						this.getNodeParameter('channels', itemIndex, '') as string,
+						'Channels (Optional)',
+					);
 					body = {
 						title,
 					};
@@ -265,11 +305,18 @@ export class ActivitySmith implements INodeType {
 					if (subtitle !== '') {
 						body.subtitle = subtitle;
 					}
+					if (channels !== undefined) {
+						body.target = { channels };
+					}
 					endpoint = '/push-notification';
 				} else if (operation === 'startLiveActivity') {
 					const numberOfSteps = this.getNodeParameter('numberOfSteps', itemIndex) as number;
 					const currentStep = this.getNodeParameter('currentStep', itemIndex) as number;
 					const activityType = this.getNodeParameter('activityType', itemIndex) as string;
+					const channels = parseOptionalStringList(
+						this.getNodeParameter('channels', itemIndex, '') as string,
+						'Channels (Optional)',
+					);
 
 					const contentState: IDataObject = {
 						title,
@@ -289,6 +336,9 @@ export class ActivitySmith implements INodeType {
 					}
 
 					body = { content_state: contentState };
+					if (channels !== undefined) {
+						body.target = { channels };
+					}
 					endpoint = '/live-activity/start';
 				} else if (operation === 'updateLiveActivity') {
 					const activityId = this.getNodeParameter('activityId', itemIndex) as string;

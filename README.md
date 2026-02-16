@@ -44,6 +44,7 @@ Use this when another system posts alerts into n8n.
 5. Map fields:
    `Title` -> `{{$json.body.title}}`
    `Message` -> `{{$json.body.message}}`
+   `Channels (Optional)` -> `{{$json.body.channels}}`
 6. Activate the workflow.
 
 Example request:
@@ -51,7 +52,7 @@ Example request:
 ```bash
 curl -X POST 'https://<your-n8n-host>/webhook/activitysmith-alert' \
   -H 'Content-Type: application/json' \
-  -d '{"title":"💸 New subscription","message":"New user subscribed to Pro: john@example.com"}'
+  -d '{"title":"💸 New subscription","message":"New user subscribed to Pro: john@example.com","channels":["marketing","sales"]}'
 ```
 
 ### 2. GitHub CI workflow to Live Activity lifecycle
@@ -74,6 +75,7 @@ Use this to mirror CI progress on iOS Live Activities.
 Suggested field mapping:
 `Title` -> `{{$json.repository.full_name}} CI`
 `Subtitle` -> `{{$json.workflow_run.status}}`
+`Channels (Optional)` -> `engineering,ios-builds`
 `Current Step` -> map from CI phase (for example 1=start, 2=test, 3=deploy, 4=done)
 `Number of Steps` -> `4`
 
