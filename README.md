@@ -52,7 +52,11 @@ Example request:
 ```bash
 curl -X POST 'https://<your-n8n-host>/webhook/activitysmith-alert' \
   -H 'Content-Type: application/json' \
-  -d '{"title":"💸 New subscription","message":"New user subscribed to Pro: john@example.com","channels":["marketing","sales"]}'
+  -d '{
+    "title": "💸 New subscription",
+    "message": "New user subscribed to Pro: john@example.com",
+    "channels": ["marketing", "sales"]
+  }'
 ```
 
 ### 2. GitHub CI workflow to Live Activity lifecycle
@@ -97,6 +101,10 @@ npm run dev
 - ActivitySmith API docs: https://activitysmith.com/docs/api-reference/introduction
 
 ## Version history
+
+### 0.1.2
+
+Added optional `Channels` input for push notifications and live activity start.
 
 ### 0.1.1
 
