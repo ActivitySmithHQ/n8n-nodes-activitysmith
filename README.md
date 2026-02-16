@@ -33,55 +33,52 @@ Note: n8n credential testing sends one test push notification to verify your key
 
 ## Usage examples
 
-### 1. Webhook to push notification
+### 1. Send Push Notifications from your workflow
 
-Use this when another system posts alerts into n8n.
+Use `ActivitySmith` anywhere in your n8n workflow when you want to notify yourself or your team on iOS.
 
-1. Add `Webhook` node.
-2. Set method to `POST` and path to `activitysmith-alert`.
-3. Add `ActivitySmith` node.
-4. Set operation to `Send Push Notification`.
-5. Map fields:
-   `Title` -> `{{$json.body.title}}`
-   `Message` -> `{{$json.body.message}}`
-   `Channels (Optional)` -> `{{$json.body.channels}}`
-6. Activate the workflow.
+Common cases:
+- Mid-workflow checkpoint
+- Error/alert branch
+- Final success/failure notification
 
-Example request:
+1. Add `ActivitySmith` node at the step where you want the push notification.
+2. Set operation to `Send Push Notification`.
+3. Set required fields:
+   `Title` and `Message`
+4. Optionally set:
+   `Subtitle`
+5. Optionally set:
+   `Channels (Optional)` to route to specific users/devices.
+   Leave empty to use API key scope recipients.
 
-```bash
-curl -X POST 'https://<your-n8n-host>/webhook/activitysmith-alert' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "title": "💸 New subscription",
-    "message": "New user subscribed to Pro: john@example.com",
-    "channels": ["marketing", "sales"]
-  }'
-```
+Example values:
+- `Title` -> `Workflow finished`
+- `Message` -> `{{$json.statusMessage}}`
+- `Channels (Optional)` -> `engineering,ios-builds`
 
-### 2. GitHub CI workflow to Live Activity lifecycle
+### 2. Track n8n workflow progress with Live Activities
 
-Use this to mirror CI progress on iOS Live Activities.
+Use Live Activities to show workflow progress on iOS from start to finish.
 
-1. Add `GitHub Trigger` node for workflow run events.
-2. Add `Switch` node on workflow status (`queued`, `in_progress`, `completed`).
-3. On `queued`:
+1. At workflow start:
    Add `ActivitySmith` node with `Start Live Activity`.
-   Save returned `activity_id` in `Data Store` keyed by GitHub run ID.
-4. On `in_progress`:
-   Load saved `activity_id` from `Data Store`.
+   Set `Title`, `Subtitle`, `Number of Steps`, `Current Step`, `Type`.
+   Optionally set `Channels (Optional)` to target specific users/devices.
+2. Save returned `activity_id` for later steps (for example in Data Store).
+3. At important workflow steps:
    Add `ActivitySmith` node with `Update Live Activity`.
-5. On `completed`:
-   Load saved `activity_id`.
+   Reuse `activity_id` and update `Current Step` / `Subtitle`.
+4. At workflow completion:
    Add `ActivitySmith` node with `End Live Activity`.
-   Optionally set `Auto Dismiss Minutes` to `0` for immediate dismiss.
+   Reuse `activity_id` and set final `Current Step`.
 
-Suggested field mapping:
-`Title` -> `{{$json.repository.full_name}} CI`
-`Subtitle` -> `{{$json.workflow_run.status}}`
-`Channels (Optional)` -> `engineering,ios-builds`
-`Current Step` -> map from CI phase (for example 1=start, 2=test, 3=deploy, 4=done)
-`Number of Steps` -> `4`
+Suggested mapping:
+- `Title` -> `{{$workflow.name}}`
+- `Subtitle` -> `{{$json.phase}}`
+- `Current Step` -> `{{$json.step}}`
+- `Number of Steps` -> `{{$json.totalSteps}}`
+- `Channels (Optional)` -> `engineering,ios-builds`
 
 ## Compatibility
 
