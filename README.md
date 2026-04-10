@@ -16,10 +16,23 @@ Package name:
 
 The `ActivitySmith` node supports:
 
+- End Live Activity Stream
 - Send Push Notification
 - Start Live Activity
+- Stream Live Activity
 - Update Live Activity
 - End Live Activity
+
+Current node coverage:
+
+- Push notifications: subtitle, channels, media, redirection, badge, sound, JSON payload, and up to 4 push actions
+- Live Activities: `segmented_progress`, `progress`, and `metrics`
+- Managed streams: stateless stream updates and stream shutdown
+- Live Activity actions and alerts where supported by the API
+
+Intentional gap:
+
+- `countdown` Live Activities are not exposed in the n8n UI yet
 
 ## Credentials
 
@@ -33,7 +46,7 @@ Note: n8n credential testing sends one test push notification to verify your key
 
 ## Usage examples
 
-### 1. Send Push Notifications from your workflow
+### 1. Send rich push notifications from your workflow
 
 Use `ActivitySmith` anywhere in your n8n workflow when you want to notify yourself or your team on iOS.
 
@@ -51,19 +64,22 @@ Common cases:
 5. Optionally set:
    `Channels (Optional)` to route to specific users/devices.
    Leave empty to use API key scope recipients.
+6. Optionally open `Push Options` to add media, redirection, badge, sound, or custom JSON payload.
+7. Optionally add `Push Actions` for URLs or webhooks.
 
 Example values:
 - `Title` -> `Workflow finished`
 - `Message` -> `{{$json.statusMessage}}`
 - `Channels (Optional)` -> `engineering,ios-builds`
+- `Push Options > Redirection URL` -> `{{$json.runUrl}}`
 
-### 2. Track n8n workflow progress with Live Activities
+### 2. Track segmented workflow progress with Live Activities
 
-Use Live Activities to show workflow progress on iOS from start to finish.
+Use `segmented_progress` when your workflow moves through discrete steps.
 
 1. At workflow start:
    Add `ActivitySmith` node with `Start Live Activity`.
-   Set `Title`, `Subtitle`, `Number of Steps`, `Current Step`, `Type`.
+   Set `Title`, `Subtitle`, `Activity Type = Segmented Progress`, `Number of Steps`, and `Current Step`.
    Optionally set `Channels (Optional)` to target specific users/devices.
 2. Save returned `activity_id` for later steps (for example in Data Store).
 3. At important workflow steps:
@@ -79,6 +95,35 @@ Suggested mapping:
 - `Current Step` -> `{{$json.step}}`
 - `Number of Steps` -> `{{$json.totalSteps}}`
 - `Channels (Optional)` -> `engineering,ios-builds`
+
+### 3. Track continuous progress or metrics
+
+Use `Activity Type = Progress` for percentages or `Value + Upper Limit`.
+
+Examples:
+- Reindex progress
+- File upload percentage
+- Migration completion
+
+Use `Activity Type = Metrics` when you want to display a compact list of live stats.
+
+Examples:
+- CPU / memory
+- Queue depth / workers busy
+- Replica lag / error rate
+
+### 4. Use managed streams when you do not want to store `activity_id`
+
+Use `Stream Live Activity` with a stable `Stream Key` such as `nightly-backup` or `prod-web-1`.
+
+ActivitySmith will start or update the Live Activity for that key automatically.
+
+When the process is done, call `End Live Activity Stream`.
+
+You can optionally provide raw JSON for:
+- `Final Stream Content State JSON`
+- `Final Stream Action JSON`
+- `Final Stream Alert JSON`
 
 ## Compatibility
 
@@ -98,6 +143,13 @@ npm run dev
 - ActivitySmith API docs: https://activitysmith.com/docs/api-reference/introduction
 
 ## Version history
+
+### Unreleased
+
+- Added rich push notification fields: media, redirection, badge, sound, payload, and push actions
+- Added `progress` and `metrics` Live Activity types
+- Added managed stream operations
+- Added Live Activity actions and alerts in the n8n node UI
 
 ### 0.1.2
 

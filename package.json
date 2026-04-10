@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-activitysmith",
-    "version": "0.1.2",
+    "version": "1.0.0",
     "description": "n8n community node for ActivitySmith push notifications and Live Activities",
     "license": "MIT",
     "homepage": "https://activitysmith.com",
@@ -42,7 +42,7 @@
         ]
     },
     "devDependencies": {
-        "@n8n/node-cli": "*",
+        "@n8n/node-cli": "^0.23.1",
         "eslint": "9.32.0",
         "prettier": "3.6.2",
         "release-it": "^19.0.4",
