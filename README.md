@@ -16,13 +16,13 @@ This is the **official ActivitySmith integration** for n8n. Add it to an automat
 
 ## Push notifications
 
-![n8n workflow live activity](https://cdn.activitysmith.com/features/n8n-workflow-live-activity.png)
+![n8n workflow progress live activity](https://cdn.activitysmith.com/features/n8n-workflow-live-activity.png)
 
 ---
 
 ## Live Activities
 
-![Metrics Live Activity on iPhone](https://cdn.activitysmith.com/features/metrics-live-activity-start.png)
+![n8n workflow completion push notification](https://cdn.activitysmith.com/features/n8n-workflow-live-activity.png)
 
 ---
 
