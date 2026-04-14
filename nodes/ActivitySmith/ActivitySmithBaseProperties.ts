@@ -49,6 +49,19 @@ export const activitySmithBaseProperties: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Stream Key',
+		name: 'streamKey',
+		type: 'string',
+		required: true,
+		default: '',
+		description: 'Stable key that identifies the managed stream, such as a deployment or server name',
+		displayOptions: {
+			show: {
+				operation: ['streamLiveActivity', 'endLiveActivityStream'],
+			},
+		},
+	},
+	{
 		displayName: 'Title',
 		name: 'title',
 		type: 'string',
@@ -72,7 +85,7 @@ export const activitySmithBaseProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Subtitle',
+		displayName: 'Subtitle (Optional)',
 		name: 'subtitle',
 		type: 'string',
 		default: '',
@@ -105,19 +118,6 @@ export const activitySmithBaseProperties: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				operation: ['updateLiveActivity', 'endLiveActivity'],
-			},
-		},
-	},
-	{
-		displayName: 'Stream Key',
-		name: 'streamKey',
-		type: 'string',
-		required: true,
-		default: '',
-		description: 'Stable key that identifies the managed stream, such as a deployment or server name',
-		displayOptions: {
-			show: {
-				operation: ['streamLiveActivity', 'endLiveActivityStream'],
 			},
 		},
 	},

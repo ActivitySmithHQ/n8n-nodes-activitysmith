@@ -20,13 +20,14 @@ export const activitySmithLiveProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Number of Steps (Optional)',
+		displayName: 'Number of Steps',
 		name: 'numberOfSteps',
-		type: 'string',
-		default: '',
-		placeholder: 'Leave empty to omit',
-		description:
-			'Required when starting segmented progress. For stream updates, include it the first time you use a stream key.',
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+			numberPrecision: 0,
+		},
+		default: 3,
 		displayOptions: {
 			show: {
 				operation: liveActivityOperations,
@@ -77,14 +78,24 @@ export const activitySmithLiveProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Metrics',
+		displayName: 'Metrics (up to 2)',
 		name: 'metrics',
 		type: 'fixedCollection',
+		placeholder: 'Add Metric',
 		typeOptions: {
 			multipleValues: true,
 			multipleValueButtonText: 'Add Metric',
+			maxAllowedFields: 2,
 		},
-		default: {},
+		default: {
+			metric: [
+				{
+					label: '',
+					unit: '',
+					value: 0,
+				},
+			],
+		},
 		displayOptions: {
 			show: {
 				operation: liveActivityOperations,
@@ -122,13 +133,14 @@ export const activitySmithLiveProperties: INodeProperties[] = [
 		displayName: 'Color',
 		name: 'accentColor',
 		type: 'options',
-		default: '',
+		default: 'blue',
 		displayOptions: {
 			show: {
 				operation: liveActivityOperations,
+				activityType: ['segmented_progress', 'progress'],
 			},
 		},
-		options: [{ name: 'Default (Blue)', value: '' }, ...colorOptions],
+		options: colorOptions,
 	},
 	{
 		displayName: 'Step Color',
@@ -144,20 +156,6 @@ export const activitySmithLiveProperties: INodeProperties[] = [
 		options: [{ name: 'Inherit Color', value: '' }, ...colorOptions],
 	},
 	{
-		displayName: 'Completed Step Accents (Optional)',
-		name: 'completedStepAccents',
-		type: 'string',
-		default: '',
-		placeholder: 'yellow, orange, green',
-		description: 'Comma-separated color slugs for completed steps',
-		displayOptions: {
-			show: {
-				operation: liveActivityOperations,
-				activityType: ['segmented_progress'],
-			},
-		},
-	},
-	{
 		displayName: 'Auto Dismiss Minutes (Optional)',
 		name: 'autoDismissMinutes',
 		type: 'string',
@@ -166,99 +164,80 @@ export const activitySmithLiveProperties: INodeProperties[] = [
 		description: 'Set 0 for immediate dismissal',
 		displayOptions: {
 			show: {
-				operation: ['endLiveActivity'],
+				operation: ['endLiveActivity', 'endLiveActivityStream'],
 			},
 		},
 	},
 	{
-		displayName: 'Live Activity Action',
-		name: 'liveAction',
-		type: 'collection',
-		default: {},
+		displayName: 'Action',
+		name: 'liveActionType',
+		type: 'options',
+		default: '',
 		displayOptions: {
 			show: {
 				operation: liveActivityOperations,
 			},
 		},
 		options: [
-			{
-				displayName: 'Body JSON',
-				name: 'bodyJson',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				placeholder: '{\n  "job_id": "deploy-123"\n}',
-				displayOptions: {
-					show: {
-						type: ['webhook'],
-					},
-				},
-			},
-			{
-				displayName: 'Method',
-				name: 'method',
-				type: 'options',
-				default: 'POST',
-				displayOptions: {
-					show: {
-						type: ['webhook'],
-					},
-				},
-				options: [
-					{ name: 'GET', value: 'GET' },
-					{ name: 'POST', value: 'POST' },
-				],
-			},
-			{
-				displayName: 'Title',
-				name: 'title',
-				type: 'string',
-				default: '',
-			},
-			{
-				displayName: 'Type',
-				name: 'type',
-				type: 'options',
-				default: 'open_url',
-				options: [
-					{ name: 'Open URL', value: 'open_url' },
-					{ name: 'Webhook', value: 'webhook' },
-				],
-			},
-			{
-				displayName: 'URL',
-				name: 'url',
-				type: 'string',
-				default: '',
-			},
+			{ name: 'None', value: '' },
+			{ name: 'Open URL', value: 'open_url' },
+			{ name: 'Webhook', value: 'webhook' },
 		],
 	},
 	{
-		displayName: 'Live Activity Alert',
-		name: 'liveAlert',
-		type: 'collection',
-		default: {},
-		description: 'Optional alert shown alongside start or stream updates',
+		displayName: 'Title',
+		name: 'liveActionTitle',
+		type: 'string',
+		default: '',
 		displayOptions: {
 			show: {
-				operation: ['startLiveActivity', 'streamLiveActivity'],
+				operation: liveActivityOperations,
+				liveActionType: ['open_url', 'webhook'],
+			},
+		},
+	},
+	{
+		displayName: 'URL',
+		name: 'liveActionUrl',
+		type: 'string',
+		default: '',
+		displayOptions: {
+			show: {
+				operation: liveActivityOperations,
+				liveActionType: ['open_url', 'webhook'],
+			},
+		},
+	},
+	{
+		displayName: 'Method',
+		name: 'liveActionMethod',
+		type: 'options',
+		default: 'POST',
+		displayOptions: {
+			show: {
+				operation: liveActivityOperations,
+				liveActionType: ['webhook'],
 			},
 		},
 		options: [
-			{
-				displayName: 'Body',
-				name: 'body',
-				type: 'string',
-				default: '',
-			},
-			{
-				displayName: 'Title',
-				name: 'title',
-				type: 'string',
-				default: '',
-			},
+			{ name: 'GET', value: 'GET' },
+			{ name: 'POST', value: 'POST' },
 		],
+	},
+	{
+		displayName: 'Body JSON',
+		name: 'liveActionBodyJson',
+		type: 'string',
+		typeOptions: {
+			rows: 4,
+		},
+		default: '',
+		placeholder: '{\n  "job_id": "deploy-123"\n}',
+		displayOptions: {
+			show: {
+				operation: liveActivityOperations,
+				liveActionType: ['webhook'],
+			},
+		},
 	},
 ];

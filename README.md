@@ -1,164 +1,34 @@
-# n8n-nodes-activitysmith
+# ActivitySmith for n8n
 
-This is an n8n community node for ActivitySmith.
+**Track your n8n automations and worfklows on your lock screen. See the progress with Live Activities or get Push Notifications when something important happens.**
 
-ActivitySmith lets you send push notifications and trigger Live Activities to your iOS devices paired with your ActivitySmith account.
+This is the **official ActivitySmith integration** for n8n. Add it to an automation and your paired iOS devices will keep you and your team in the loop.
 
-## Installation
+---
 
-Follow the n8n community node installation guide:
-https://docs.n8n.io/integrations/community-nodes/installation/
+## What you can do
 
-Package name:
-`n8n-nodes-activitysmith`
+- **Get push notification from any path through an automation:** success, failure, or a midpoint when you want a glance at a run without opening n8n.
+- **Rich media delivery when the automation’s outcome needs context:** media preview, tap-through URL and actions to call a webhook.
+- **Track long-running automations on the Lock Screen:** stepped sequences, percentage progress and more.
 
-## Operations
+---
 
-The `ActivitySmith` node supports:
+## Push notifications
 
-- End Live Activity Stream
-- Send Push Notification
-- Start Live Activity
-- Stream Live Activity
-- Update Live Activity
-- End Live Activity
+![n8n workflow live activity](https://cdn.activitysmith.com/features/n8n-workflow-live-activity.png)
 
-Current node coverage:
+---
 
-- Push notifications: subtitle, channels, media, redirection, badge, sound, JSON payload, and up to 4 push actions
-- Live Activities: `segmented_progress`, `progress`, and `metrics`
-- Managed streams: stateless stream updates and stream shutdown
-- Live Activity actions and alerts where supported by the API
+## Live Activities
 
-Intentional gap:
+![Metrics Live Activity on iPhone](https://cdn.activitysmith.com/features/metrics-live-activity-start.png)
 
-- `countdown` Live Activities are not exposed in the n8n UI yet
+---
 
 ## Credentials
 
-Use the `ActivitySmith API` credential.
+1. Create an API key at [activitysmith.com/app/keys](https://activitysmith.com/app/keys).
+2. In n8n, add **ActivitySmith API** credentials and paste the key.
 
-1. Get your API key from `https://activitysmith.com/app/keys`
-2. In n8n, create credentials for `ActivitySmith API`
-3. Paste your API key
-
-Note: n8n credential testing sends one test push notification to verify your key.
-
-## Usage examples
-
-### 1. Send rich push notifications from your workflow
-
-Use `ActivitySmith` anywhere in your n8n workflow when you want to notify yourself or your team on iOS.
-
-Common cases:
-- Mid-workflow checkpoint
-- Error/alert branch
-- Final success/failure notification
-
-1. Add `ActivitySmith` node at the step where you want the push notification.
-2. Set operation to `Send Push Notification`.
-3. Set required fields:
-   `Title` and `Message`
-4. Optionally set:
-   `Subtitle`
-5. Optionally set:
-   `Channels (Optional)` to route to specific users/devices.
-   Leave empty to use API key scope recipients.
-6. Optionally open `Push Options` to add media, redirection, badge, sound, or custom JSON payload.
-7. Optionally add `Push Actions` for URLs or webhooks.
-
-Example values:
-- `Title` -> `Workflow finished`
-- `Message` -> `{{$json.statusMessage}}`
-- `Channels (Optional)` -> `engineering,ios-builds`
-- `Push Options > Redirection URL` -> `{{$json.runUrl}}`
-
-### 2. Track segmented workflow progress with Live Activities
-
-Use `segmented_progress` when your workflow moves through discrete steps.
-
-1. At workflow start:
-   Add `ActivitySmith` node with `Start Live Activity`.
-   Set `Title`, `Subtitle`, `Activity Type = Segmented Progress`, `Number of Steps`, and `Current Step`.
-   Optionally set `Channels (Optional)` to target specific users/devices.
-2. Save returned `activity_id` for later steps (for example in Data Store).
-3. At important workflow steps:
-   Add `ActivitySmith` node with `Update Live Activity`.
-   Reuse `activity_id` and update `Current Step` / `Subtitle`.
-4. At workflow completion:
-   Add `ActivitySmith` node with `End Live Activity`.
-   Reuse `activity_id` and set final `Current Step`.
-
-Suggested mapping:
-- `Title` -> `{{$workflow.name}}`
-- `Subtitle` -> `{{$json.phase}}`
-- `Current Step` -> `{{$json.step}}`
-- `Number of Steps` -> `{{$json.totalSteps}}`
-- `Channels (Optional)` -> `engineering,ios-builds`
-
-### 3. Track continuous progress or metrics
-
-Use `Activity Type = Progress` for percentages or `Value + Upper Limit`.
-
-Examples:
-- Reindex progress
-- File upload percentage
-- Migration completion
-
-Use `Activity Type = Metrics` when you want to display a compact list of live stats.
-
-Examples:
-- CPU / memory
-- Queue depth / workers busy
-- Replica lag / error rate
-
-### 4. Use managed streams when you do not want to store `activity_id`
-
-Use `Stream Live Activity` with a stable `Stream Key` such as `nightly-backup` or `prod-web-1`.
-
-ActivitySmith will start or update the Live Activity for that key automatically.
-
-When the process is done, call `End Live Activity Stream`.
-
-You can optionally provide raw JSON for:
-- `Final Stream Content State JSON`
-- `Final Stream Action JSON`
-- `Final Stream Alert JSON`
-
-## Compatibility
-
-Tested with current n8n community node tooling via `@n8n/node-cli`.
-
-## Development
-
-```bash
-npm run lint
-npm run build
-npm run dev
-```
-
-## Resources
-
-- n8n community nodes docs: https://docs.n8n.io/integrations/#community-nodes
-- ActivitySmith API docs: https://activitysmith.com/docs/api-reference/introduction
-
-## Version history
-
-### Unreleased
-
-- Added rich push notification fields: media, redirection, badge, sound, payload, and push actions
-- Added `progress` and `metrics` Live Activity types
-- Added managed stream operations
-- Added Live Activity actions and alerts in the n8n node UI
-
-### 0.1.2
-
-Added optional `Channels` input for push notifications and live activity start.
-
-### 0.1.1
-
-Added workflow usage examples and improved push notification sample payload.
-
-### 0.1.0
-
-Initial release with push notification and Live Activity actions.
+When you test the credential, n8n sends a single test push notification so you know the key works.

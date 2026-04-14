@@ -121,12 +121,17 @@ export const buildActionFromObject = (value: IDataObject, fieldName: string): ID
 		return undefined;
 	}
 
-	const title = getTrimmedString(value.title);
 	const type = getTrimmedString(value.type);
+
+	if (type === '') {
+		return undefined;
+	}
+
+	const title = getTrimmedString(value.title);
 	const url = getTrimmedString(value.url);
 
-	if (title === '' || type === '' || url === '') {
-		throw new ApplicationError(`${fieldName} requires Title, Type, and URL`);
+	if (title === '' || url === '') {
+		throw new ApplicationError(`${fieldName} requires Title, Action, and URL`);
 	}
 
 	const action: IDataObject = {
@@ -171,35 +176,40 @@ export const buildLiveAction = (
 	context: IExecuteFunctions,
 	itemIndex: number,
 ): IDataObject | undefined => {
-	const rawAction = context.getNodeParameter('liveAction', itemIndex, {}) as IDataObject;
-	return buildActionFromObject(rawAction, 'Live Activity Action');
-};
+	const type = getTrimmedString(context.getNodeParameter('liveActionType', itemIndex, '') as string);
 
-export const buildAlert = (context: IExecuteFunctions, itemIndex: number): IDataObject | undefined => {
-	const rawAlert = context.getNodeParameter('liveAlert', itemIndex, {}) as IDataObject;
-
-	if (!hasConfiguredValues(rawAlert)) {
+	if (type === '') {
 		return undefined;
 	}
 
-	const title = getTrimmedString(rawAlert.title);
-	const body = getTrimmedString(rawAlert.body);
+	const title = getTrimmedString(context.getNodeParameter('liveActionTitle', itemIndex, '') as string);
+	const url = getTrimmedString(context.getNodeParameter('liveActionUrl', itemIndex, '') as string);
+	const bodyJson = getTrimmedString(
+		context.getNodeParameter('liveActionBodyJson', itemIndex, '') as string,
+	);
 
-	if (title === '' && body === '') {
-		return undefined;
+	if (title === '' || url === '') {
+		throw new ApplicationError('Live Activity Action requires Title, Action, and URL');
 	}
 
-	const alert: IDataObject = {};
+	const action: IDataObject = {
+		title,
+		type: type as ActionType,
+		url,
+	};
 
-	if (title !== '') {
-		alert.title = title;
+	if (type === 'webhook') {
+		action.method =
+			(getTrimmedString(context.getNodeParameter('liveActionMethod', itemIndex, '') as string) ||
+				'POST') as WebhookMethod;
+
+		const body = parseOptionalJsonObject(bodyJson, 'Action Body JSON');
+		if (body !== undefined) {
+			action.body = body;
+		}
 	}
 
-	if (body !== '') {
-		alert.body = body;
-	}
-
-	return alert;
+	return action;
 };
 
 export const buildMetrics = (
@@ -227,6 +237,10 @@ export const buildMetrics = (
 
 		return metric;
 	});
+
+	if (metrics.length > 2) {
+		throw new ApplicationError('Metrics Live Activities can contain at most 2 metrics');
+	}
 
 	return metrics.length > 0 ? metrics : undefined;
 };

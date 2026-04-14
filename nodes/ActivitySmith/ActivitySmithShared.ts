@@ -35,4 +35,5 @@ export const liveActivityOperations = [
 	'updateLiveActivity',
 	'endLiveActivity',
 	'streamLiveActivity',
+	'endLiveActivityStream',
 ];
