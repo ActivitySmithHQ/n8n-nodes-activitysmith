@@ -16,7 +16,7 @@ This is the **official ActivitySmith integration** for n8n. Add it to an automat
 
 ## Push notifications
 
-![n8n workflow progress live activity](https://cdn.activitysmith.com/features/n8n-workflow-live-activity.png)
+![n8n workflow progress live activity](https://cdn.activitysmith.com/features/n8n-push-notification.png)
 
 ---
 
