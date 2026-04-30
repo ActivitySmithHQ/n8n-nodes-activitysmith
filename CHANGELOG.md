@@ -1,3 +1,7 @@
+## 1.0.5
+
+CI fix.
+
 ## 1.0.4
 
 Fixes before review.
