@@ -1,3 +1,7 @@
+## 1.0.4
+
+Fixes before review.
+
 ## 0.1.2
 
 Add optional `channels` input for:
