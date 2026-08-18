@@ -19,7 +19,7 @@ export class ActivitySmith implements INodeType {
 		group: ['output'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
-		description: 'Send push notifications and manage Live Activities',
+		description: 'Send push notifications and show real-time updates with Live Activities',
 		defaults: {
 			name: 'ActivitySmith',
 		},
